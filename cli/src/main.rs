@@ -79,18 +79,18 @@ pub enum DIDKit {
         method: String,
 
         /// JWK file for default verification method
-        #[structopt(short, long, parse(from_os_str))]
+        #[clap(short, long, parse(from_os_str))]
         verification_key: Option<PathBuf>,
 
         /// JWK file for DID Update operations
-        #[structopt(short, long, parse(from_os_str))]
+        #[clap(short, long, parse(from_os_str))]
         update_key: Option<PathBuf>,
 
         /// JWK file for DID Recovery and/or Deactivate operations
-        #[structopt(short, long, parse(from_os_str))]
+        #[clap(short, long, parse(from_os_str))]
         recovery_key: Option<PathBuf>,
 
-        #[structopt(short = "o", name = "name=value")]
+        #[clap(short = 'o', name = "name=value")]
         /// Options for DID create operation
         ///
         /// More info: https://identity.foundation/did-registration/#options
@@ -110,20 +110,20 @@ pub enum DIDKit {
     /// Update a DID.
     DIDUpdate {
         /// New JWK file for next DID Update operation
-        #[structopt(short = "u", long, parse(from_os_str))]
+        #[clap(short = 'u', long, parse(from_os_str))]
         new_update_key: Option<PathBuf>,
 
         /// JWK file for performing this DID update operation.
-        #[structopt(short = "U", long, parse(from_os_str))]
+        #[clap(short = 'U', long, parse(from_os_str))]
         update_key: Option<PathBuf>,
 
-        #[structopt(short = "o", name = "name=value")]
+        #[clap(short = 'o', name = "name=value")]
         /// Options for DID Update operation
         ///
         /// More info: https://identity.foundation/did-registration/#options
         options: Vec<MetadataProperty>,
 
-        #[structopt(flatten)]
+        #[clap(subcommand)]
         cmd: DIDUpdateCmd,
     },
 
@@ -133,22 +133,22 @@ pub enum DIDKit {
         did: String,
 
         /// New JWK file for default verification method
-        #[structopt(short = "v", long, parse(from_os_str))]
+        #[clap(short = 'v', long, parse(from_os_str))]
         new_verification_key: Option<PathBuf>,
 
         /// New JWK file for DID Update operations
-        #[structopt(short = "u", long, parse(from_os_str))]
+        #[clap(short = 'u', long, parse(from_os_str))]
         new_update_key: Option<PathBuf>,
 
         /// New JWK file for DID Recovery and/or Deactivate operations
-        #[structopt(short = "r", long, parse(from_os_str))]
+        #[clap(short = 'r', long, parse(from_os_str))]
         new_recovery_key: Option<PathBuf>,
 
         /// JWK file for performing this DID recover operation.
-        #[structopt(short = "R", long, parse(from_os_str))]
+        #[clap(short = 'R', long, parse(from_os_str))]
         recovery_key: Option<PathBuf>,
 
-        #[structopt(short = "o", name = "name=value")]
+        #[clap(short = 'o', name = "name=value")]
         /// Options for DID Recover operation
         ///
         /// More info: https://identity.foundation/did-registration/#options
@@ -196,10 +196,10 @@ pub enum DIDKit {
         did: String,
 
         /// Filename of JWK to perform the DID Deactivate operation
-        #[structopt(short, long, parse(from_os_str))]
+        #[clap(short, long, parse(from_os_str))]
         key: Option<PathBuf>,
 
-        #[structopt(short = "o", name = "name=value")]
+        #[clap(short = 'o', name = "name=value")]
         /// Options for DID deactivate operation
         options: Vec<MetadataProperty>,
     },
@@ -283,7 +283,7 @@ pub struct IdAndDid {
     /// DID whose DID document to update. Default: implied from <id>
     ///
     /// Defaults to the DID that is the prefix from the <id> argument.
-    #[structopt(short, long)]
+    #[clap(short, long)]
     did: Option<String>,
 }
 
@@ -308,27 +308,27 @@ fn parse_service_endpoint(uri_or_object: &str) -> AResult<ServiceEndpoint> {
 }
 
 #[derive(StructOpt, Debug)]
-#[structopt(rename_all = "camelCase")]
-#[structopt(group = ArgGroup::with_name("verification_relationship").multiple(true).required(true))]
+#[clap(rename_all = "camelCase")]
+#[clap(group = ArgGroup::new("verification_relationship").multiple(true).required(true))]
 pub struct VerificationRelationships {
     /// Allow using this verification method for authentication
-    #[structopt(short = "U", long, group = "verification_relationship")]
+    #[clap(short = 'U', long, group = "verification_relationship")]
     pub authentication: bool,
 
     /// Allow using this verification method for making assertions
-    #[structopt(short = "S", long, group = "verification_relationship")]
+    #[clap(short = 'S', long, group = "verification_relationship")]
     pub assertion_method: bool,
 
     /// Allow using this verification method for key agreement
-    #[structopt(short = "K", long, group = "verification_relationship")]
+    #[clap(short = 'K', long, group = "verification_relationship")]
     pub key_agreement: bool,
 
     /// Allow using this verification method for capability invocation
-    #[structopt(short = "I", long, group = "verification_relationship")]
+    #[clap(short = 'I', long, group = "verification_relationship")]
     pub capability_invocation: bool,
 
     /// Allow using this verification method for capability delegation
-    #[structopt(short = "D", long, group = "verification_relationship")]
+    #[clap(short = 'D', long, group = "verification_relationship")]
     pub capability_delegation: bool,
 }
 
@@ -365,37 +365,37 @@ impl From<VerificationRelationships> for Vec<VerificationRelationship> {
 pub enum DIDUpdateCmd {
     /// Add a verification method to the DID document
     SetVerificationMethod {
-        #[structopt(flatten)]
+        #[clap(flatten)]
         id_and_did: IdAndDid,
 
         /// Verification method type
-        #[structopt(short, long)]
+        #[clap(short, long)]
         type_: String,
 
         /// Verification method controller property
         ///
         /// Defaults to the DID this update is for (the <did> option)
-        #[structopt(short, long)]
+        #[clap(short, long)]
         controller: Option<String>,
 
-        #[structopt(flatten)]
+        #[clap(flatten)]
         verification_relationships: VerificationRelationships,
 
-        #[structopt(flatten)]
+        #[clap(flatten)]
         public_key: PublicKeyArg,
     },
 
     /// Add a service to the DID document
     SetService {
-        #[structopt(flatten)]
+        #[clap(flatten)]
         id_and_did: IdAndDid,
 
         /// Service type
-        #[structopt(short, long)]
+        #[clap(short, long)]
         r#type: Vec<String>,
 
         /// serviceEndpoint URI or JSON object
-        #[structopt(short, long, parse(try_from_str = parse_service_endpoint))]
+        #[clap(short, long, parse(try_from_str = parse_service_endpoint))]
         endpoint: Vec<ServiceEndpoint>,
     },
 
@@ -450,23 +450,23 @@ pub struct KeyArg {
 }
 
 #[derive(StructOpt, Debug)]
-#[structopt(group = ArgGroup::with_name("public_key_group").required(true))]
-#[structopt(rename_all = "camelCase")]
+#[clap(group = ArgGroup::new("public_key_group").required(true))]
+#[clap(rename_all = "camelCase")]
 pub struct PublicKeyArg {
     /// Public key JSON Web Key (JWK)
-    #[structopt(short = "j", long, group = "public_key_group", parse(try_from_str = serde_json::from_str), name = "JWK")]
+    #[clap(short = 'j', long, group = "public_key_group", parse(try_from_str = serde_json::from_str), name = "JWK")]
     public_key_jwk: Option<JWK>,
 
     /// Public key JWK read from file
-    #[structopt(short = "k", long, group = "public_key_group", name = "filename")]
+    #[clap(short = 'k', long, group = "public_key_group", name = "filename")]
     public_key_jwk_path: Option<PathBuf>,
 
     /// Multibase-encoded public key
-    #[structopt(short = "m", long, group = "public_key_group", name = "string")]
+    #[clap(short = 'm', long, group = "public_key_group", name = "string")]
     public_key_multibase: Option<String>,
 
     /// Blockchain Account Id (CAIP-10)
-    #[structopt(short = "b", long, group = "public_key_group", name = "account")]
+    #[clap(short = 'b', long, group = "public_key_group", name = "account")]
     blockchain_account_id: Option<String>,
 }
 
